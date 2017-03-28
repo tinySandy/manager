@@ -1,35 +1,16 @@
-from flask_restful import Resource
+"""
+CRUD endpoint for Photos
+"""
 from flask import request, abort
+from manager.base import Base
 
-photos = [
-    {
-        'albumId': 1,
-        'id': 1,
-        'title': u'Song',
-        'url': u'song url'
-    },
-    {
-        'albumId': 2,
-        'id': 1,
-        'title': u'Song',
-        'url': u'song url'
-    }
-]
-
-
-class Photos(Resource):
-    def __init__(self):
-        pass
-
+class Photos(Base):
     def get(self):
         """
         GET request for /photos/ endpoint
         :return: json response with all photos available
         """
-        if len(photos) == 0:
-            abort(404)
-
-        return photos, 200
+        return self.photos, 200
 
     def post(self, album_id):
         """
@@ -41,10 +22,10 @@ class Photos(Resource):
 
         photo = {
             'albumId': album_id,
-            'id': photos[-1]['id'] + 1,
+            'id': self.photos[-1]['id'] + 1,
             'title': request.json['title'],
         }
-        photos.append(photo)
+        self.photos.append(photo)
 
         return photo, 201
 
@@ -55,7 +36,7 @@ class Photos(Resource):
         :param photo_id: id of photo to update
         :return: json response with updated album
         """
-        photo = [photo for photo in photos if photo['id'] == photo_id]
+        photo = [photo for photo in self.photos if photo['id'] == photo_id]
 
         if len(photo) == 0:
             abort(404)
@@ -73,11 +54,21 @@ class Photos(Resource):
         :param photo_id: id of the photo to delete
         :return: empty string and 204 code
         """
-        album = [album for album in photos if album['id'] == album_id]
+        album = [album for album in self.photos if album['id'] == album_id]
 
         if len(album) == 0:
             abort(404)
 
-        photos.remove(album[0])
+        self.photos.remove(album[0])
 
         return '', 204
+
+
+class PhotosByAlbum(Base):
+    def get(self, album_id):
+        """
+        GET request for /photos/album/ endpoint
+        :return: json response with all photos for provided album_id
+        """
+        response = [photo for photo in self.photos if photo['albumId']==album_id]
+        return response, 200

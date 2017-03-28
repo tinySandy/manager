@@ -1,34 +1,19 @@
 """
-CRUD operations for Albums
+CRUD endpoint for Albums
 """
-from flask_restful import Resource
 from flask import request, abort
+from manager.base import Base
 
-albums = [
-    {
-        'id': 1,
-        'title': u'Hello',
-    },
-    {
-        'id': 2,
-        'title': u'Good Bye',
-    }
-]
-
-
-class Albums(Resource):
-    def __init__(self):
-        pass
-
+class Albums(Base):
     def get(self):
         """
         GET request for /albums/ endpoint
         :return: json response with all albums available
         """
-        if len(albums) == 0:
-            abort(404)
-
-        return albums, 200
+        _temp_album = self.albums
+        for album in _temp_album:
+            album['photos'] = [photo for photo in self.photos if photo['albumId']==album['id']]
+        return self.albums, 200
 
     def post(self):
         """
@@ -39,10 +24,10 @@ class Albums(Resource):
             abort(400)
 
         album = {
-            'id': albums[-1]['id'] + 1,
+            'id': self.albums[-1]['id'] + 1,
             'title': request.json['title'],
         }
-        albums.append(album)
+        self.albums.append(album)
 
         return album, 201
 
@@ -52,16 +37,16 @@ class Albums(Resource):
         :param album_id: id of the album to update
         :return: json response with updated album
         """
-        album = [album for album in albums if album['id'] == album_id]
+        album = [album for album in self.albums if album['id'] == album_id][0]
 
-        if len(album) == 0:
+        if not album:
             abort(404)
         if not request.json or 'title' not in request.json:
             abort(400)
 
-        album[0]['title'] = request.json['title']
+        album['title'] = request.json['title']
 
-        return album[0]
+        return album
 
     def delete(self, album_id):
         """
@@ -69,11 +54,16 @@ class Albums(Resource):
         :param album_id: id of the album to delete
         :return: empty string and 204 code
         """
-        album = [album for album in albums if album['id'] == album_id]
+        album = [album for album in self.albums if album['id'] == album_id][0]
+        album_is_not_empty = [photo for photo in self.photos if photo.get('albumId', '') == album['id']]
 
-        if len(album) == 0:
+        if not album:
             abort(404)
 
-        albums.remove(album[0])
+        if album_is_not_empty:
+            return "Deleting non empty albums is not permitted", 403
 
-        return '', 204
+        else:
+            self.albums.remove(album)
+
+        return 'Requested album has been deleted', 204

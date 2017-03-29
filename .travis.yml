@@ -1,12 +1,9 @@
 language: python
 python:
-  - "3.4"
   - "3.5"
-  - "3.5-dev" # 3.5 development branch
   - "3.6"
 # command to install dependencies
 install: "pip install -r requirements.txt"
 # command to run tests
-before_install:
-- python api.py
-script:pytest
+before_install: python api.py
+script: pytest

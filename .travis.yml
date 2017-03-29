@@ -7,7 +7,7 @@ install: pip install -r requirements.txt
 
 # command to run tests
 before_script: 
-- python api.py
+- python api.py &
 - sleep 20
 
 script: python -m unittest discover -s tests

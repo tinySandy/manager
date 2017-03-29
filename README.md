@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/tinySandy/manager.svg?branch=master)](https://travis-ci.org/tinySandy/manager)
 # Photo Manager
 Simple REST API for Photo Manager. Uses in-memory approach for data storing and not suitable for huge amount of data.
 There is no authentication

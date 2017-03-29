@@ -1,7 +1,7 @@
 # Photo Manager
 Simple REST API for Photo Manager. Uses in-memory approach for data storing and not suitable for huge amount of data.
-Doesn't have authentiphication
-Can be improved by plugin in DB. 
+There is no authentication
+Can be improved by plugging in DB and using at least basic auth. 
 ### Prerequisites
 ```
 Python 3.5+

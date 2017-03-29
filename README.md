@@ -23,7 +23,7 @@ Tests can be executed from your favorite IDE or from CLI by navigating to the ro
 ```
 env\Scripts\python -m unittest discover -s tests -v
 ```
-### Available endpoint
+### Available endpoints
 ```
 /manager/init
 /manager/albums

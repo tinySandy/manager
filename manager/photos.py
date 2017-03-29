@@ -4,6 +4,7 @@ CRUD endpoint for Photos
 from flask import request, abort
 from manager.base import Base
 
+
 class Photos(Base):
     def get(self):
         """
@@ -17,13 +18,19 @@ class Photos(Base):
         POST request for /photos/ endpoint
         :return: creates new photos under specified album
         """
-        if not request.json or 'title' not in request.json:
+        if not request.json or 'title' not in request.json or 'albumId' not in request.json:
             abort(400)
+
+        if self.photos:
+            _id = self.photos[-1]['id'] + 1
+        else:
+            _id = 1
 
         photo = {
             'albumId': album_id,
-            'id': self.photos[-1]['id'] + 1,
+            'id': _id,
             'title': request.json['title'],
+            'url': request.json['url']
         }
         self.photos.append(photo)
 
@@ -36,16 +43,22 @@ class Photos(Base):
         :param photo_id: id of photo to update
         :return: json response with updated album
         """
-        photo = [photo for photo in self.photos if photo['id'] == photo_id]
+        photo = [photo for photo in self.photos if photo['albumId'] == album_id and photo['id'] == photo_id]
 
-        if len(photo) == 0:
+        if not photo:
             abort(404)
-        if not request.json or 'title' not in request.json:
+
+        if not request.json \
+                or 'title' not in request.json \
+                or 'url' not in request.json\
+                or 'albumId' not in request.json:
             abort(400)
 
         photo[0]['title'] = request.json['title']
+        photo[0]['url'] = request.json['url']
+        photo[0]['albumId'] = request.json['albumId']
 
-        return photo[0]
+        return photo
 
     def delete(self, album_id, photo_id):
         """
@@ -54,21 +67,11 @@ class Photos(Base):
         :param photo_id: id of the photo to delete
         :return: empty string and 204 code
         """
-        album = [album for album in self.photos if album['id'] == album_id]
+        photo = [photo for photo in self.photos if photo['albumId'] == album_id and photo['id'] == photo_id]
 
-        if len(album) == 0:
+        if not photo:
             abort(404)
 
-        self.photos.remove(album[0])
+        self.photos.remove(photo[0])
 
         return '', 204
-
-
-class PhotosByAlbum(Base):
-    def get(self, album_id):
-        """
-        GET request for /photos/album/ endpoint
-        :return: json response with all photos for provided album_id
-        """
-        response = [photo for photo in self.photos if photo['albumId']==album_id]
-        return response, 200
